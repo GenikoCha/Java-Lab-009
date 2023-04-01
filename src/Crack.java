@@ -1,9 +1,6 @@
 import org.apache.commons.codec.digest.Crypt;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,7 +16,27 @@ public class Crack {
         this.users = Crack.parseShadow(shadowFile);
     }
 
-    public void crack() throws FileNotFoundException {
+    public void crack(String dictionary) throws FileNotFoundException {
+
+        FileInputStream inputStreet = new FileInputStream(dictionary);
+        Scanner scanner = new Scanner(inputStreet);
+
+        while (scanner.hasNextLine()){
+            String word = scanner.nextLine();
+            for (User user : users) {
+                String passHash = user.getPassHash();
+
+                if (passHash != null && passHash.contains("$")) {
+                    String generatedHash = Crypt.crypt(word, passHash);
+
+                    if (generatedHash.equals(passHash)) {
+                        System.out.println("Found password " + word + " for user " + user.getUsername());
+                    }
+                }
+            }
+        }
+
+        scanner.close();
     }
 
     public static int getLineCount(String path) {
@@ -31,6 +48,27 @@ public class Crack {
     }
 
     public static User[] parseShadow(String shadowFile) throws FileNotFoundException {
+
+        int lineCount = getLineCount(shadowFile);
+        User[] users = new User[lineCount];
+
+        FileInputStream inputStreet = new FileInputStream(shadowFile);
+        Scanner scanner = new Scanner(inputStreet);
+        int pokeHolesToPlaceRite = 0;
+
+        while (scanner.hasNextLine()) {
+
+            String leonard = scanner.nextLine();
+            String[] part = leonard.split(":");
+
+            String username = part[0];
+            String passHash = part[1];
+
+            users[pokeHolesToPlaceRite++] = new User(username, passHash);
+        }
+
+        scanner.close();
+        return users;
     }
 
     public static void main(String[] args) throws FileNotFoundException {
@@ -41,6 +79,6 @@ public class Crack {
         String dictPath = sc.nextLine();
 
         Crack c = new Crack(shadowPath, dictPath);
-        c.crack();
+        c.crack(dictPath);
     }
 }
