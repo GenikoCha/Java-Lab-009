@@ -1,3 +1,11 @@
+/**
+ *
+ * @author Trevor Hartman
+ * @author Geng Cha
+ *
+ * @since Version 1.0
+ *
+ */
 import org.apache.commons.codec.digest.Crypt;
 
 import java.io.*;
@@ -11,11 +19,24 @@ public class Crack {
     private final User[] users;
     private final String dictionary;
 
+    /**
+     *
+     * @param shadowFile comes from scanner in main
+     * @param dictionary comes from scanner in main
+     *
+     * @throws FileNotFoundException
+     */
+
     public Crack(String shadowFile, String dictionary) throws FileNotFoundException {
         this.dictionary = dictionary;
         this.users = Crack.parseShadow(shadowFile);
     }
 
+    /**
+     *
+     * @param dictionary scanner main
+     * @throws FileNotFoundException
+     */
     public void crack(String dictionary) throws FileNotFoundException {
 
         FileInputStream inputStreet = new FileInputStream(dictionary);
@@ -39,6 +60,11 @@ public class Crack {
         scanner.close();
     }
 
+    /**
+     *
+     * @param path scanner main, but passed from parseShadow
+     * @return
+     */
     public static int getLineCount(String path) {
         int lineCount = 0;
         try (Stream<String> stream = Files.lines(Path.of(path), StandardCharsets.UTF_8)) {
@@ -47,6 +73,12 @@ public class Crack {
         return lineCount;
     }
 
+    /**
+     *
+     * @param shadowFile scanner main, but passed from Crack
+     * @return
+     * @throws FileNotFoundException
+     */
     public static User[] parseShadow(String shadowFile) throws FileNotFoundException {
 
         int lineCount = getLineCount(shadowFile);
